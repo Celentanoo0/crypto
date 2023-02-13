@@ -16,16 +16,19 @@ export default {
   created() {
     cryptoCoins().then((coinsData) => (this.coins = coinsData));
 
-    const tickersFromLS = window.localStorage.getItem('tickersToRemember');
-    if(tickersFromLS){
+    const tickersFromLS = window.localStorage.getItem("tickersToRemember");
+    if (tickersFromLS) {
       this.tickers = JSON.parse(tickersFromLS);
     }
   },
 
   watch: {
-    tickers(){
-      window.localStorage.setItem('tickersToRemember', JSON.stringify(this.tickers))
-    }
+    tickers() {
+      window.localStorage.setItem(
+        "tickersToRemember",
+        JSON.stringify(this.tickers)
+      );
+    },
   },
 
   methods: {
@@ -41,7 +44,8 @@ export default {
           : (this.tickerIsAlreadyExist = true) && "";
 
       newTicker !== ""
-        ? (this.tickers = [...this.tickers, newTicker]) && (this.tickerIsAlreadyExist = false)
+        ? (this.tickers = [...this.tickers, newTicker]) &&
+          (this.tickerIsAlreadyExist = false)
         : "";
 
       if (!this.tickerIsAlreadyExist) {
