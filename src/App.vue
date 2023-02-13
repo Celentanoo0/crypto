@@ -1,11 +1,11 @@
 <script>
-//import {cryptoCoins} from "@/cryptoCoins";
+import { cryptoCoins } from "@/cryptoCoins";
 
 export default {
   data() {
     return {
       tickerNameInput: "",
-      tickers: [{ name: "BTC", price: "-" }],
+      tickers: [],
       selectedTicker: null,
       coinsToRecommend: [],
       coins: null,
@@ -14,14 +14,18 @@ export default {
   },
 
   created() {
-    const cryptoCoins = async () => {
-      const f = await fetch(
-        "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
-      );
-      const result = await f.json();
-      this.coins = result.Data;
-    };
-    cryptoCoins();
+    cryptoCoins().then((coinsData) => (this.coins = coinsData));
+
+    const tickersFromLS = window.localStorage.getItem('tickersToRemember');
+    if(tickersFromLS){
+      this.tickers = JSON.parse(tickersFromLS);
+    }
+  },
+
+  watch: {
+    tickers(){
+      window.localStorage.setItem('tickersToRemember', JSON.stringify(this.tickers))
+    }
   },
 
   methods: {
@@ -36,9 +40,11 @@ export default {
           ? { name: this.tickerNameInput.toUpperCase(), price: "-" }
           : (this.tickerIsAlreadyExist = true) && "";
 
-      newTicker !== "" ? this.tickers.push(newTicker) && (this.tickerIsAlreadyExist = false) : "";
+      newTicker !== ""
+        ? (this.tickers = [...this.tickers, newTicker]) && (this.tickerIsAlreadyExist = false)
+        : "";
 
-      if(!this.tickerIsAlreadyExist){
+      if (!this.tickerIsAlreadyExist) {
         this.tickerNameInput = "";
         this.coinsToRecommend = [];
       }
@@ -83,7 +89,7 @@ export default {
                 placeholder="Например DOGE"
                 v-model="tickerNameInput"
                 @keydown.enter="addNewTicker"
-                @input="recommendCoins(), tickerIsAlreadyExist = false"
+                @input="recommendCoins(), (tickerIsAlreadyExist = false)"
               />
             </div>
             <template v-if="coinsToRecommend.length">
@@ -93,7 +99,7 @@ export default {
                 <span
                   v-for="coin in coinsToRecommend"
                   v-bind:key="coin"
-                  @click="tickerNameInput = coin, addNewTicker()"
+                  @click="(tickerNameInput = coin), addNewTicker()"
                   class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
                 >
                   {{ coin }}
