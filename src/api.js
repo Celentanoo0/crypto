@@ -12,4 +12,8 @@ const API_KEY =
 export const tickersPrice = (tokenName) =>
   fetch(
     `https://min-api.cryptocompare.com/data/price?fsym=${tokenName}&tsyms=USD&api_key=${API_KEY}`
-  ).then((data) => data.json());
+  )
+    .then((data) => data.json())
+    .then((data) =>
+      data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2)
+    );

@@ -115,13 +115,12 @@ export default {
   methods: {
     subscribeToToken(token) {
       setInterval(async () => {
-        const data = await tickersPrice(token.name);
+        const priceValue = await tickersPrice(token.name);
 
-        this.tickers.find((item) => item.name === token.name).price =
-          data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2);
+        this.tickers.find((item) => item.name === token.name).price = priceValue;
 
         if (this.selectedTicker?.name === token.name) {
-          this.graph.push(data.USD);
+          this.graph.push(priceValue);
         }
       }, 5000);
     },
