@@ -2,7 +2,7 @@
 import { cryptoCoins, tickersPrice } from "@/api";
 
 //todo:
-// 1. Graph [ ]
+// 1. Graph [+]
 
 export default {
   data() {
@@ -132,6 +132,10 @@ export default {
       }
 
       const priceValue = await tickersPrice(this.tickersNames);
+
+      if(this.selectedTicker){
+        this.graph.push(this.selectedTicker.price);
+      }
 
       for (const elem of this.tickers) {
         const price = priceValue[elem.name.toUpperCase()];
