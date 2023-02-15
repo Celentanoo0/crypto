@@ -1,9 +1,6 @@
 <script>
 import { cryptoCoins, tickersPrice } from "@/api";
 
-//todo:
-// 1. Graph [+]
-
 export default {
   data() {
     return {
@@ -63,7 +60,7 @@ export default {
     urlFilterParams() {
       window.history.pushState(
         "",
-        "Vite App",
+        "Cryptonomicon",
         `http://localhost:5173/?filter=${this.tickersFilter}&page=${this.page}`
       );
     },
@@ -133,7 +130,7 @@ export default {
 
       const priceValue = await tickersPrice(this.tickersNames);
 
-      if(this.selectedTicker){
+      if (this.selectedTicker) {
         this.graph.push(this.selectedTicker.price);
       }
 
