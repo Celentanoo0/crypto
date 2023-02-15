@@ -5,11 +5,18 @@ export default {
   data() {
     return {
       tickerNameInput: "",
-      tickers: [],
-      selectedTicker: null,
+      tickersFilter: "",
+
       coinsToRecommend: [],
+      tickers: [],
+      graph: [],
+
+      selectedTicker: null,
       coins: null,
+
       tickerIsAlreadyExist: false,
+
+      page: 1,
     };
   },
 
@@ -20,6 +27,20 @@ export default {
     if (tickersFromLS) {
       this.tickers = JSON.parse(tickersFromLS);
     }
+
+    for (const elem of this.tickers) {
+      this.subscribeToToken(elem);
+    }
+
+    const urlFilters = Object.fromEntries(
+      new URLSearchParams(window.location.search).entries()
+    );
+    if (urlFilters.page) {
+      this.page = Number(urlFilters.page);
+    }
+    if (urlFilters.filter) {
+      this.tickersFilter = urlFilters.filter;
+    }
   },
 
   watch: {
@@ -29,9 +50,87 @@ export default {
         JSON.stringify(this.tickers)
       );
     },
+
+    selectedTicker() {
+      this.graph = [];
+    },
+
+    tickersFilter() {
+      this.page = 1;
+    },
+
+    urlFilterParams() {
+      window.history.pushState(
+        "",
+        "Vite App",
+        `http://localhost:5173/?filter=${this.tickersFilter}&page=${this.page}`
+      );
+    },
+  },
+
+  computed: {
+    urlFilterParams() {
+      return {
+        filter: this.tickersFilter,
+        page: this.page,
+      };
+    },
+
+    normalizedGraph() {
+      const maxValue = Math.max(...this.graph);
+      const minValue = Math.min(...this.graph);
+
+      if (minValue === maxValue) {
+        return this.graph.map(() => 50);
+      }
+
+      return this.graph.map(
+        (price) => 5 + ((price - minValue) * 95) / (maxValue - minValue)
+      );
+    },
+
+    pageStartIndex() {
+      return (this.page - 1) * 6;
+    },
+
+    pageEndIndex() {
+      return this.page * 6;
+    },
+
+    paginatedPage() {
+      return this.filteredTickers.slice(this.pageStartIndex, this.pageEndIndex);
+    },
+
+    filteredTickers() {
+      return this.tickers.filter((item) =>
+        item.name.toLowerCase().includes(this.tickersFilter.toLowerCase())
+      );
+    },
+
+    hasNextPage() {
+      return this.filteredTickers.length > this.pageEndIndex;
+    },
   },
 
   methods: {
+    subscribeToToken(token) {
+      const API_KEY =
+        "a0ed06110a6de56d8c55fc29917fcff11c8f5bd60373178e5b98259ca8356f10";
+      setInterval(async () => {
+        const f = await fetch(
+          `https://min-api.cryptocompare.com/data/price?fsym=${token.name}&tsyms=USD&api_key=${API_KEY}`
+        );
+        const data = await f.json();
+
+        this.tickers.find((item) => item.name === token.name).price =
+          data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2);
+
+        if (this.selectedTicker?.name === token.name) {
+          this.graph.push(data.USD);
+        }
+      }, 5000);
+    },
+
     addNewTicker() {
       const newTicker =
         this.tickerNameInput === ""
@@ -43,10 +142,11 @@ export default {
           ? { name: this.tickerNameInput.toUpperCase(), price: "-" }
           : (this.tickerIsAlreadyExist = true) && "";
 
-      newTicker !== ""
-        ? (this.tickers = [...this.tickers, newTicker]) &&
-          (this.tickerIsAlreadyExist = false)
-        : "";
+      if (newTicker !== "") {
+        this.subscribeToToken(newTicker);
+        this.tickers = [...this.tickers, newTicker];
+        this.tickerIsAlreadyExist = false;
+      }
 
       if (!this.tickerIsAlreadyExist) {
         this.tickerNameInput = "";
@@ -57,6 +157,9 @@ export default {
     removeTicker(tickerToRemove) {
       this.tickers = this.tickers.filter((item) => item !== tickerToRemove);
       this.selectedTicker = null;
+      if(this.paginatedPage.length < 1 && this.page > 1){
+        this.page -= 1;
+      }
     },
 
     recommendCoins() {
@@ -102,7 +205,7 @@ export default {
               >
                 <span
                   v-for="coin in coinsToRecommend"
-                  v-bind:key="coin"
+                  :key="coin"
                   @click="(tickerNameInput = coin), addNewTicker()"
                   class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
                 >
@@ -138,13 +241,36 @@ export default {
 
       <template v-if="tickers.length">
         <hr class="w-full border-t border-gray-600 my-4" />
+        <div>
+          <div>
+            <span>Фильтр по названию: </span>
+            <input v-model="tickersFilter" />
+          </div>
+          <div>
+            <button
+              @click="page -= 1"
+              v-if="page > 1"
+              class="my-4 mr-3 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              Назад
+            </button>
+            <button
+              @click="page += 1"
+              v-if="hasNextPage"
+              class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              Вперед
+            </button>
+          </div>
+        </div>
+        <hr class="w-full border-t border-gray-600 my-4" />
         <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div
             class="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer"
-            v-for="ticker in tickers"
-            v-bind:key="ticker"
+            v-for="ticker in paginatedPage"
+            :key="ticker"
             @click="selectedTicker = ticker"
-            v-bind:class="selectedTicker === ticker ? 'border-4' : ''"
+            :class="selectedTicker === ticker ? 'border-4' : ''"
           >
             <div class="px-4 py-5 sm:p-6 text-center">
               <dt class="text-sm font-medium text-gray-500 truncate">
@@ -182,10 +308,12 @@ export default {
               {{ selectedTicker.name }} - USD
             </h3>
             <div class="flex items-end border-gray-600 border-b border-l h-64">
-              <div class="bg-purple-800 border w-10 h-24"></div>
-              <div class="bg-purple-800 border w-10 h-32"></div>
-              <div class="bg-purple-800 border w-10 h-48"></div>
-              <div class="bg-purple-800 border w-10 h-16"></div>
+              <div
+                class="bg-purple-800 border w-10 h-48"
+                v-for="(item, idx) in normalizedGraph"
+                :key="idx"
+                :style="{ height: `${item}%` }"
+              ></div>
             </div>
             <button
               type="button"
