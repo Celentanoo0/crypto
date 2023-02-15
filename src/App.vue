@@ -1,5 +1,5 @@
 <script>
-import { cryptoCoins } from "@/cryptoCoins";
+import { cryptoCoins, tickersPrice } from "@/api";
 
 export default {
   data() {
@@ -114,13 +114,8 @@ export default {
 
   methods: {
     subscribeToToken(token) {
-      const API_KEY =
-        "a0ed06110a6de56d8c55fc29917fcff11c8f5bd60373178e5b98259ca8356f10";
       setInterval(async () => {
-        const f = await fetch(
-          `https://min-api.cryptocompare.com/data/price?fsym=${token.name}&tsyms=USD&api_key=${API_KEY}`
-        );
-        const data = await f.json();
+        const data = await tickersPrice(token.name);
 
         this.tickers.find((item) => item.name === token.name).price =
           data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2);
