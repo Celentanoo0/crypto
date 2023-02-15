@@ -1,6 +1,9 @@
 <script>
 import { cryptoCoins, tickersPrice } from "@/api";
 
+//todo:
+// 1. Graph [ ]
+
 export default {
   data() {
     return {
@@ -28,9 +31,7 @@ export default {
       this.tickers = JSON.parse(tickersFromLS);
     }
 
-    for (const elem of this.tickers) {
-      this.subscribeToToken(elem);
-    }
+    setInterval(this.updatePrice, 5000);
 
     const urlFilters = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
@@ -110,19 +111,32 @@ export default {
     hasNextPage() {
       return this.filteredTickers.length > this.pageEndIndex;
     },
+
+    tickersNames() {
+      return this.tickers.map((item) => item.name).join(",");
+    },
   },
 
   methods: {
-    subscribeToToken(token) {
-      setInterval(async () => {
-        const priceValue = await tickersPrice(token.name);
+    formatPrice(price) {
+      return price === "-"
+        ? price
+        : price > 1
+        ? price.toFixed(2)
+        : price.toPrecision(2);
+    },
 
-        this.tickers.find((item) => item.name === token.name).price = priceValue;
+    async updatePrice() {
+      if (!this.tickers.length) {
+        return;
+      }
 
-        if (this.selectedTicker?.name === token.name) {
-          this.graph.push(priceValue);
-        }
-      }, 5000);
+      const priceValue = await tickersPrice(this.tickersNames);
+
+      for (const elem of this.tickers) {
+        const price = priceValue[elem.name.toUpperCase()];
+        elem.price = price ?? "-";
+      }
     },
 
     addNewTicker() {
@@ -137,7 +151,6 @@ export default {
           : (this.tickerIsAlreadyExist = true) && "";
 
       if (newTicker !== "") {
-        this.subscribeToToken(newTicker);
         this.tickers = [...this.tickers, newTicker];
         this.tickerIsAlreadyExist = false;
       }
@@ -151,7 +164,7 @@ export default {
     removeTicker(tickerToRemove) {
       this.tickers = this.tickers.filter((item) => item !== tickerToRemove);
       this.selectedTicker = null;
-      if(this.paginatedPage.length < 1 && this.page > 1){
+      if (this.paginatedPage.length < 1 && this.page > 1) {
         this.page -= 1;
       }
     },
@@ -271,7 +284,7 @@ export default {
                 {{ ticker.name }} - USD
               </dt>
               <dd class="mt-1 text-3xl font-semibold text-gray-900">
-                {{ ticker.price }}
+                {{ formatPrice(ticker.price) }}
               </dd>
             </div>
             <div class="w-full border-t border-gray-200"></div>

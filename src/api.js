@@ -9,11 +9,13 @@ export const cryptoCoins = async () => {
 const API_KEY =
   "a0ed06110a6de56d8c55fc29917fcff11c8f5bd60373178e5b98259ca8356f10";
 
-export const tickersPrice = (tokenName) =>
+export const tickersPrice = (tokensNames) =>
   fetch(
-    `https://min-api.cryptocompare.com/data/price?fsym=${tokenName}&tsyms=USD&api_key=${API_KEY}`
+    `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${tokensNames}&tsyms=USD&api_key=${API_KEY}`
   )
     .then((data) => data.json())
-    .then((data) =>
-      data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2)
+    .then((rawData) =>
+      Object.fromEntries(
+        Object.entries(rawData).map(([key, value]) => [key, value.USD])
+      )
     );
