@@ -12,6 +12,10 @@ const API_KEY =
 const tickersHandlers = new Map();
 
 const updateTickers = () => {
+  if (tickersHandlers.size === 0) {
+    return;
+  }
+
   fetch(
     `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${[
       ...tickersHandlers.keys(),
