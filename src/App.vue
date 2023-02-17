@@ -1,5 +1,5 @@
 <script>
-import { cryptoCoins, tickersPrice } from "@/api";
+import { cryptoCoins, subscribeToUpdates, unsubscribeFromUpdates } from "@/api";
 
 export default {
   data() {
@@ -28,7 +28,11 @@ export default {
       this.tickers = JSON.parse(tickersFromLS);
     }
 
-    setInterval(this.updatePrice, 5000);
+    //setInterval(this.updatePrice, 5000);
+
+    for(const elem of this.tickers){
+      subscribeToUpdates(elem.name, (price) => this.updateTickers(elem.name, price))
+    }
 
     const urlFilters = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
@@ -115,6 +119,10 @@ export default {
   },
 
   methods: {
+    updateTickers(tickerName, tickerPrice) {
+      this.tickers.find((item) => item.name === tickerName).price = tickerPrice;
+    },
+
     formatPrice(price) {
       return price === "-"
         ? price
@@ -123,22 +131,22 @@ export default {
         : price.toPrecision(2);
     },
 
-    async updatePrice() {
-      if (!this.tickers.length) {
-        return;
-      }
-
-      const priceValue = await tickersPrice(this.tickersNames);
-
-      if (this.selectedTicker) {
-        this.graph.push(this.selectedTicker.price);
-      }
-
-      for (const elem of this.tickers) {
-        const price = priceValue[elem.name.toUpperCase()];
-        elem.price = price ?? "-";
-      }
-    },
+    // async updatePrice() {
+    //   if (!this.tickers.length) {
+    //     return;
+    //   }
+    //
+    //   const priceValue = await updateTickers(this.tickersNames);
+    //
+    //   if (this.selectedTicker) {
+    //     this.graph.push(this.selectedTicker.price);
+    //   }
+    //
+    //   for (const elem of this.tickers) {
+    //     const price = priceValue[elem.name.toUpperCase()];
+    //     elem.price = price ?? "-";
+    //   }
+    // },
 
     addNewTicker() {
       const newTicker =
@@ -152,6 +160,7 @@ export default {
           : (this.tickerIsAlreadyExist = true) && "";
 
       if (newTicker !== "") {
+        subscribeToUpdates(newTicker.name, (price) => this.updateTickers(newTicker.name, price))
         this.tickers = [...this.tickers, newTicker];
         this.tickerIsAlreadyExist = false;
       }
@@ -164,6 +173,7 @@ export default {
 
     removeTicker(tickerToRemove) {
       this.tickers = this.tickers.filter((item) => item !== tickerToRemove);
+      unsubscribeFromUpdates(tickerToRemove.name);
       this.selectedTicker = null;
       if (this.paginatedPage.length < 1 && this.page > 1) {
         this.page -= 1;
