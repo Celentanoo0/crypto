@@ -28,8 +28,6 @@ export default {
       this.tickers = JSON.parse(tickersFromLS);
     }
 
-    //setInterval(this.updatePrice, 5000);
-
     for(const elem of this.tickers){
       subscribeToUpdates(elem.name, (price) => this.updateTickers(elem.name, price))
     }
@@ -130,23 +128,6 @@ export default {
         ? price.toFixed(2)
         : price.toPrecision(2);
     },
-
-    // async updatePrice() {
-    //   if (!this.tickers.length) {
-    //     return;
-    //   }
-    //
-    //   const priceValue = await updateTickers(this.tickersNames);
-    //
-    //   if (this.selectedTicker) {
-    //     this.graph.push(this.selectedTicker.price);
-    //   }
-    //
-    //   for (const elem of this.tickers) {
-    //     const price = priceValue[elem.name.toUpperCase()];
-    //     elem.price = price ?? "-";
-    //   }
-    // },
 
     addNewTicker() {
       const newTicker =

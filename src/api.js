@@ -42,10 +42,5 @@ export const subscribeToUpdates = (tickerName, cb) => {
 };
 
 export const unsubscribeFromUpdates = (tickerName) => {
-  // const subscribers = tickersHandlers.get(tickerName) || [];
-  // tickersHandlers.set(
-  //   tickerName,
-  //   subscribers.filter((fn) => fn !== cb)
-  // );
   tickersHandlers.delete(tickerName);
 };
