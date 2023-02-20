@@ -119,6 +119,9 @@ export default {
   methods: {
     updateTickers(tickerName, tickerPrice) {
       this.tickers.find((item) => item.name === tickerName).price = tickerPrice;
+      if(this.selectedTicker?.name === tickerName){
+        this.graph.push(tickerPrice);
+      }
     },
 
     formatPrice(price) {
