@@ -11,20 +11,20 @@ const socket = new WebSocket(
 );
 
 const subscribeToWS = (tickerName) => {
-  startTracking({
+  sendMessage({
     action: "SubAdd",
     subs: [`5~CCCAGG~${tickerName}~USD`],
   });
 };
 
 const unsubscribeFromWS = (tickerName) => {
-  startTracking({
+  sendMessage({
     action: "SubRemove",
     subs: [`5~CCCAGG~${tickerName}~USD`],
   });
 };
 
-const startTracking = (message) => {
+const sendMessage = (message) => {
   const messageToSend = JSON.stringify(message);
 
   if (socket.readyState === WebSocket.OPEN) {
