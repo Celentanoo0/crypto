@@ -42,13 +42,22 @@ const sendMessage = (message) => {
 };
 
 const CURRENCY_INDEX = "5";
+const ERROR_INDEX = "500";
 
 socket.addEventListener("message", (e) => {
   const {
     TYPE: type,
     PRICE: price,
     FROMSYMBOL: tickerName,
+    PARAMETER: errParam,
   } = JSON.parse(e.data);
+
+  if (type === ERROR_INDEX) {
+    const tokenName = errParam.split("~")[2];
+    const handlers = tickersHandlers.get(tokenName) ?? [];
+    handlers.forEach((fn) => fn(undefined));
+    return;
+  }
 
   if (type !== CURRENCY_INDEX || price === undefined) {
     return;

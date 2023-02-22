@@ -28,8 +28,10 @@ export default {
       this.tickers = JSON.parse(tickersFromLS);
     }
 
-    for(const elem of this.tickers){
-      subscribeToUpdates(elem.name, (price) => this.updateTickers(elem.name, price))
+    for (const elem of this.tickers) {
+      subscribeToUpdates(elem.name, (price) =>
+        this.updateTickers(elem.name, price)
+      );
     }
 
     const urlFilters = Object.fromEntries(
@@ -110,16 +112,27 @@ export default {
     hasNextPage() {
       return this.filteredTickers.length > this.pageEndIndex;
     },
-
-    tickersNames() {
-      return this.tickers.map((item) => item.name).join(",");
-    },
   },
 
   methods: {
+    classesForTicker(ticker) {
+      return {
+        "bg-red-100": ticker.tokenIsNotExist === true,
+        "bg-white": ticker.tokenIsNotExist === false,
+        "border-4": ticker === this.selectedTicker,
+      };
+    },
+
     updateTickers(tickerName, tickerPrice) {
+      if (!tickerPrice) {
+        this.tickers.find(
+          (item) => item.name === tickerName
+        ).tokenIsNotExist = true;
+        return;
+      }
+
       this.tickers.find((item) => item.name === tickerName).price = tickerPrice;
-      if(this.selectedTicker?.name === tickerName){
+      if (this.selectedTicker?.name === tickerName) {
         this.graph.push(tickerPrice);
       }
     },
@@ -140,11 +153,17 @@ export default {
               (item) =>
                 item.name.toLowerCase() !== this.tickerNameInput.toLowerCase()
             )
-          ? { name: this.tickerNameInput.toUpperCase(), price: "-" }
+          ? {
+              name: this.tickerNameInput.toUpperCase(),
+              price: "-",
+              tokenIsNotExist: false,
+            }
           : (this.tickerIsAlreadyExist = true) && "";
 
       if (newTicker !== "") {
-        subscribeToUpdates(newTicker.name, (price) => this.updateTickers(newTicker.name, price))
+        subscribeToUpdates(newTicker.name, (price) =>
+          this.updateTickers(newTicker.name, price)
+        );
         this.tickers = [...this.tickers, newTicker];
         this.tickerIsAlreadyExist = false;
       }
@@ -268,11 +287,11 @@ export default {
         <hr class="w-full border-t border-gray-600 my-4" />
         <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div
-            class="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer"
+            class="overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer"
             v-for="ticker in paginatedPage"
             :key="ticker"
             @click="selectedTicker = ticker"
-            :class="selectedTicker === ticker ? 'border-4' : ''"
+            :class="classesForTicker(ticker)"
           >
             <div class="px-4 py-5 sm:p-6 text-center">
               <dt class="text-sm font-medium text-gray-500 truncate">
