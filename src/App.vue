@@ -124,14 +124,15 @@ export default {
     },
 
     updateTickers(tickerName, tickerPrice) {
+      const receivedTicker = this.tickers.find((item) => item.name === tickerName);
+
       if (!tickerPrice) {
-        this.tickers.find(
-          (item) => item.name === tickerName
-        ).tokenIsNotExist = true;
+        receivedTicker.tokenIsNotExist = true;
         return;
       }
 
-      this.tickers.find((item) => item.name === tickerName).price = tickerPrice;
+      receivedTicker.price = tickerPrice;
+      receivedTicker.tokenIsNotExist = false;
       if (this.selectedTicker?.name === tickerName) {
         this.graph.push(tickerPrice);
       }

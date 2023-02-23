@@ -24,6 +24,20 @@ const unsubscribeFromWS = (tickerName) => {
   });
 };
 
+const subscribeToWSForNonTradablePairs = (tickerName) => {
+  sendMessage({
+    action: "SubAdd",
+    subs: [`5~CCCAGG~${tickerName}~BTC`],
+  });
+};
+
+const unsubscribeFromWSForNonTradablePairs = (tickerName) => {
+  sendMessage({
+    action: "SubRemove",
+    subs: [`5~CCCAGG~${tickerName}~BTC`],
+  });
+};
+
 const sendMessage = (message) => {
   const messageToSend = JSON.stringify(message);
 
@@ -43,19 +57,35 @@ const sendMessage = (message) => {
 
 const CURRENCY_INDEX = "5";
 const ERROR_INDEX = "500";
+let btcToUsd = 1;
+let cryptoPairIsAlreadyExist = tickersHandlers.has("BTC");
 
 socket.addEventListener("message", (e) => {
   const {
     TYPE: type,
     PRICE: price,
-    FROMSYMBOL: tickerName,
+    FROMSYMBOL: tickerFrom,
+    TOSYMBOL: tickerTo,
     PARAMETER: errParam,
+    MESSAGE: errMessage,
   } = JSON.parse(e.data);
 
-  if (type === ERROR_INDEX) {
-    const tokenName = errParam.split("~")[2];
-    const handlers = tickersHandlers.get(tokenName) ?? [];
-    handlers.forEach((fn) => fn(undefined));
+  if (!tickersHandlers.has("BTC") && !cryptoPairIsAlreadyExist) {
+    subscribeToWS("BTC");
+    cryptoPairIsAlreadyExist = true;
+  }
+
+  if (type === ERROR_INDEX && errMessage === "INVALID_SUB") {
+    const tokenFrom = errParam.split("~")[2];
+    const tokenTo = errParam.split("~")[3];
+
+    if (tokenTo !== "USD") {
+      const handlers = tickersHandlers.get(tokenFrom) ?? [];
+      handlers.forEach((fn) => fn(undefined));
+      return;
+    }
+
+    subscribeToWSForNonTradablePairs(tokenFrom);
     return;
   }
 
@@ -63,8 +93,17 @@ socket.addEventListener("message", (e) => {
     return;
   }
 
-  const handlers = tickersHandlers.get(tickerName) ?? [];
-  handlers.forEach((fn) => fn(price));
+  if (tickerFrom === "BTC") {
+    btcToUsd = price;
+  }
+
+  if (tickerTo !== "BTC") {
+    const handlers = tickersHandlers.get(tickerFrom) ?? [];
+    handlers.forEach((fn) => fn(price));
+  } else {
+    const handlers = tickersHandlers.get(tickerFrom) ?? [];
+    handlers.forEach((fn) => fn(price * btcToUsd));
+  }
 });
 
 export const subscribeToUpdates = (tickerName, cb) => {
@@ -76,6 +115,7 @@ export const subscribeToUpdates = (tickerName, cb) => {
 export const unsubscribeFromUpdates = (tickerName) => {
   tickersHandlers.delete(tickerName);
   unsubscribeFromWS(tickerName);
+  unsubscribeFromWSForNonTradablePairs(tickerName);
 };
 
 export const cryptoCoins = async () => {
