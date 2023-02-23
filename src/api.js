@@ -97,11 +97,11 @@ socket.addEventListener("message", (e) => {
     btcToUsd = price;
   }
 
+  const handlers = tickersHandlers.get(tickerFrom) ?? [];
+
   if (tickerTo !== "BTC") {
-    const handlers = tickersHandlers.get(tickerFrom) ?? [];
     handlers.forEach((fn) => fn(price));
   } else {
-    const handlers = tickersHandlers.get(tickerFrom) ?? [];
     handlers.forEach((fn) => fn(price * btcToUsd));
   }
 });
