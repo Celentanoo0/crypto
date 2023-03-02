@@ -1,5 +1,5 @@
 <script>
-import { cryptoCoins, subscribeToUpdates, unsubscribeFromUpdates } from "@/api";
+import { getCryptoCoinsList, subscribeToUpdates, unsubscribeFromUpdates } from "@/api";
 
 export default {
   data() {
@@ -21,7 +21,7 @@ export default {
   },
 
   created() {
-    cryptoCoins().then((coinsData) => (this.coins = coinsData));
+    getCryptoCoinsList().then((coinsData) => (this.coins = coinsData));
 
     const tickersFromLS = window.localStorage.getItem("tickersToRemember");
     if (tickersFromLS) {

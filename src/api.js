@@ -94,7 +94,7 @@ export const unsubscribeFromUpdates = (tickerName) => {
   unsubscribeFromWSForNonTradablePairs(tickerName);
 };
 
-export const cryptoCoins = async () => {
+export const getCryptoCoinsList = async () => {
   const f = await fetch(
     "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
   );
