@@ -18,6 +18,7 @@ export default {
 
       page: 1,
       maxElementsInGraph: 1,
+      graphElemWidth: 38,
     };
   },
 
@@ -121,10 +122,6 @@ export default {
     hasNextPage() {
       return this.filteredTickers.length > this.pageEndIndex;
     },
-
-    graphElemWidth() {
-      return this.$refs.graphElems[0].clientWidth;
-    }
   },
 
   methods: {
@@ -354,11 +351,10 @@ export default {
             </h3>
             <div class="flex items-end border-gray-600 border-b border-l h-64" ref="graph">
               <div
-                class="bg-purple-800 border w-10 h-48"
+                class="bg-purple-800 border"
                 v-for="(item, idx) in normalizedGraph"
                 :key="idx"
-                :style="{ height: `${item}%` }"
-                ref="graphElems"
+                :style="{ height: `${item}%`, width: `${graphElemWidth}px` }"
               ></div>
             </div>
             <button
