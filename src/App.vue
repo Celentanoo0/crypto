@@ -17,6 +17,7 @@ export default {
       tickerIsAlreadyExist: false,
 
       page: 1,
+      maxElementsInGraph: 1,
     };
   },
 
@@ -43,6 +44,14 @@ export default {
     if (urlFilters.filter) {
       this.tickersFilter = urlFilters.filter;
     }
+  },
+
+  mounted() {
+    window.addEventListener('resize', this.calculateMaxElementsInGraph);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.calculateMaxElementsInGraph)
   },
 
   watch: {
@@ -112,9 +121,20 @@ export default {
     hasNextPage() {
       return this.filteredTickers.length > this.pageEndIndex;
     },
+
+    graphElemWidth() {
+      return this.$refs.graphElems[0].clientWidth;
+    }
   },
 
   methods: {
+    calculateMaxElementsInGraph() {
+      if(!this.$refs.graph){
+        return;
+      }
+      this.maxElementsInGraph = this.$refs.graph.clientWidth / this.graphElemWidth;
+    },
+
     classesForTicker(ticker) {
       return {
         "bg-red-100": ticker.tokenIsNotExist === true,
@@ -135,6 +155,9 @@ export default {
       receivedTicker.tokenIsNotExist = false;
       if (this.selectedTicker?.name === tickerName) {
         this.graph.push(tickerPrice);
+        if(this.graph.length > this.maxElementsInGraph){
+          this.graph = this.graph.slice(this.graph.length - this.maxElementsInGraph);
+        }
       }
     },
 
@@ -329,12 +352,13 @@ export default {
             <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
               {{ selectedTicker.name }} - USD
             </h3>
-            <div class="flex items-end border-gray-600 border-b border-l h-64">
+            <div class="flex items-end border-gray-600 border-b border-l h-64" ref="graph">
               <div
                 class="bg-purple-800 border w-10 h-48"
                 v-for="(item, idx) in normalizedGraph"
                 :key="idx"
                 :style="{ height: `${item}%` }"
+                ref="graphElems"
               ></div>
             </div>
             <button
