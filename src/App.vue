@@ -1,5 +1,9 @@
 <script>
-import { getCryptoCoinsList, subscribeToUpdates, unsubscribeFromUpdates } from "@/api";
+import {
+  getCryptoCoinsList,
+  subscribeToUpdates,
+  unsubscribeFromUpdates,
+} from "@/api";
 
 export default {
   data() {
@@ -48,11 +52,23 @@ export default {
   },
 
   mounted() {
-    window.addEventListener('resize', this.calculateMaxElementsInGraph);
+    window.addEventListener("resize", this.calculateMaxElementsInGraph);
+
+    setInterval(() => {
+      if(!this.selectedTicker){
+        return;
+      }
+
+      if (this.graph.length > this.maxElementsInGraph) {
+        this.graph = this.graph.slice(
+            this.graph.length - this.maxElementsInGraph
+        );
+      }
+    }, 50)
   },
 
   beforeUnmount() {
-    window.removeEventListener('resize', this.calculateMaxElementsInGraph)
+    window.removeEventListener("resize", this.calculateMaxElementsInGraph);
   },
 
   watch: {
@@ -126,10 +142,11 @@ export default {
 
   methods: {
     calculateMaxElementsInGraph() {
-      if(!this.$refs.graph){
+      if (!this.$refs.graph) {
         return;
       }
-      this.maxElementsInGraph = this.$refs.graph.clientWidth / this.graphElemWidth;
+      this.maxElementsInGraph =
+        this.$refs.graph.clientWidth / this.graphElemWidth;
     },
 
     classesForTicker(ticker) {
@@ -141,7 +158,9 @@ export default {
     },
 
     updateTickers(tickerName, tickerPrice) {
-      const receivedTicker = this.tickers.find((item) => item.name === tickerName);
+      const receivedTicker = this.tickers.find(
+        (item) => item.name === tickerName
+      );
 
       if (!tickerPrice) {
         receivedTicker.tokenIsNotExist = true;
@@ -152,9 +171,6 @@ export default {
       receivedTicker.tokenIsNotExist = false;
       if (this.selectedTicker?.name === tickerName) {
         this.graph.push(tickerPrice);
-        if(this.graph.length > this.maxElementsInGraph){
-          this.graph = this.graph.slice(this.graph.length - this.maxElementsInGraph);
-        }
       }
     },
 
@@ -349,7 +365,10 @@ export default {
             <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
               {{ selectedTicker.name }} - USD
             </h3>
-            <div class="flex items-end border-gray-600 border-b border-l h-64" ref="graph">
+            <div
+              class="flex items-end border-gray-600 border-b border-l h-64"
+              ref="graph"
+            >
               <div
                 class="bg-purple-800 border"
                 v-for="(item, idx) in normalizedGraph"
