@@ -55,16 +55,16 @@ export default {
     window.addEventListener("resize", this.calculateMaxElementsInGraph);
 
     setInterval(() => {
-      if(!this.selectedTicker){
+      if (!this.selectedTicker) {
         return;
       }
 
       if (this.graph.length > this.maxElementsInGraph) {
         this.graph = this.graph.slice(
-            this.graph.length - this.maxElementsInGraph
+          this.graph.length - this.maxElementsInGraph
         );
       }
-    }, 50)
+    }, 50);
   },
 
   beforeUnmount() {
@@ -81,6 +81,7 @@ export default {
 
     selectedTicker() {
       this.graph = [];
+      this.$nextTick().then(this.calculateMaxElementsInGraph);
     },
 
     tickersFilter() {
