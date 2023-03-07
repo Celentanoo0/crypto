@@ -14,6 +14,8 @@ export default {
     return {
       tickersFilter: "",
 
+      currentPriceOfSelectedTicker: 0,
+
       tickers: [],
 
       selectedTicker: null,
@@ -121,7 +123,8 @@ export default {
       receivedTicker.price = tickerPrice;
       receivedTicker.tokenIsNotExist = false;
       if (this.selectedTicker?.name === tickerName) {
-        this.graph.push(tickerPrice); // ??
+        //this.graph.push(tickerPrice); // ??
+        this.currentPriceOfSelectedTicker = tickerPrice;
       }
     },
 
@@ -241,7 +244,11 @@ export default {
         </dl>
         <hr class="w-full border-t border-gray-600 my-4" />
         <template v-if="selectedTicker">
-          <crypto-graph :selectedTicker="selectedTicker.name" @close-graph="selectedTicker = null"/>
+          <crypto-graph
+            :selectedTicker="selectedTicker.name"
+            :price="currentPriceOfSelectedTicker"
+            @close-graph="selectedTicker = null"
+          />
         </template>
       </template>
     </div>

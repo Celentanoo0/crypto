@@ -9,6 +9,7 @@ export default {
   },
 
   mounted() {
+    this.$nextTick().then(this.calculateMaxElementsInGraph);
     window.addEventListener("resize", this.calculateMaxElementsInGraph);
 
     setInterval(() => {
@@ -44,9 +45,12 @@ export default {
   },
 
   watch: {
+    price() {
+      this.graph.push(this.price);
+    },
+
     selectedTicker() {
       this.graph = [];
-      this.$nextTick().then(this.calculateMaxElementsInGraph);
     },
   },
 
@@ -65,6 +69,12 @@ export default {
       type: String,
       required: true,
       default: "",
+    },
+
+    price: {
+      type: Number,
+      required: true,
+      default: 0,
     },
   },
 
