@@ -123,7 +123,6 @@ export default {
       receivedTicker.price = tickerPrice;
       receivedTicker.tokenIsNotExist = false;
       if (this.selectedTicker?.name === tickerName) {
-        //this.graph.push(tickerPrice); // ??
         this.currentPriceOfSelectedTicker = tickerPrice;
       }
     },
@@ -179,7 +178,6 @@ export default {
         @ticker-state="tickerIsAlreadyExist = false"
         :tickerState="tickerIsAlreadyExist"
       />
-
       <template v-if="tickers.length">
         <hr class="w-full border-t border-gray-600 my-4" />
         <div>
