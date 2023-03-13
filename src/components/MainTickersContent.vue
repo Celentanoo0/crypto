@@ -1,5 +1,7 @@
 <script>
 import CryptoGraph from "@/components/CryptoGraph.vue";
+import PageFilters from "@/components/PageFilters.vue";
+
 export default {
   props: {
     tickers: {
@@ -17,6 +19,7 @@ export default {
 
   components: {
     CryptoGraph,
+    PageFilters,
   },
 
   data() {
@@ -128,29 +131,13 @@ export default {
 
 <template>
   <hr class="w-full border-t border-gray-600 my-4" />
-  <div>
-    <div>
-      <span>Фильтр по названию: </span>
-      <input v-model="tickersFilter" />
-    </div>
-    <div>
-      <button
-        @click="page -= 1"
-        v-if="page > 1"
-        class="my-4 mr-3 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-      >
-        Назад
-      </button>
-      <button
-        @click="page += 1"
-        v-if="hasNextPage"
-        class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-      >
-        Вперед
-      </button>
-    </div>
-  </div>
-  <hr class="w-full border-t border-gray-600 my-4" />
+  <page-filters
+    :page="page"
+    :hasNextPage="hasNextPage"
+    v-model:tickersFilter="tickersFilter"
+    @prev-page="page -= 1"
+    @next-page="page += 1"
+  />
   <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
     <div
       class="overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer"
