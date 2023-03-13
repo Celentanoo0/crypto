@@ -1,5 +1,23 @@
 <script>
 export default {
+  props: {
+    selectedTicker: {
+      type: String,
+      required: true,
+      default: "",
+    },
+
+    price: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+  },
+
+  emits: {
+    "close-graph": null,
+  },
+
   data() {
     return {
       graph: [],
@@ -62,24 +80,6 @@ export default {
       this.maxElementsInGraph =
         this.$refs.graph.clientWidth / this.graphElemWidth;
     },
-  },
-
-  props: {
-    selectedTicker: {
-      type: String,
-      required: true,
-      default: "",
-    },
-
-    price: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-  },
-
-  emits: {
-    "close-graph": null,
   },
 };
 </script>

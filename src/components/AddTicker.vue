@@ -12,6 +12,7 @@ export default {
       tickerNameInput: "",
       coinsToRecommend: [],
       coins: null,
+      currentPriceOfSelectedTicker: 0,
     };
   },
 
