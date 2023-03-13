@@ -31,6 +31,8 @@ export default {
     };
   },
 
+  MAX_TICKERS_ON_PAGE: 6,
+
   created() {
     const urlFilters = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
@@ -72,11 +74,11 @@ export default {
     },
 
     pageStartIndex() {
-      return (this.page - 1) * 6;
+      return (this.page - 1) * this.$options.MAX_TICKERS_ON_PAGE;
     },
 
     pageEndIndex() {
-      return this.page * 6;
+      return this.page * this.$options.MAX_TICKERS_ON_PAGE;
     },
 
     paginatedPage() {
@@ -118,12 +120,11 @@ export default {
 
       this.$emit("delete-ticker", ticker);
 
-      if (
-        this.$nextTick().then(() => this.paginatedPage.length < 1) &&
-        this.page > 1
-      ) {
-        this.page -= 1;
-      }
+      this.$nextTick().then(() => {
+        if (this.paginatedPage.length < 1 && this.page > 1) {
+          this.page -= 1;
+        }
+      });
     },
   },
 };
