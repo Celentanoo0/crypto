@@ -20,6 +20,7 @@ export default {
     "next-page": null,
     "prev-page": null,
     "update:tickersFilter": null,
+    "page-reset": null,
   },
 
   methods: {
@@ -30,6 +31,11 @@ export default {
     prevPage() {
       this.$emit("prev-page");
     },
+
+    handleInput($event) {
+      this.$emit("update:tickersFilter", $event.target.value);
+      this.$emit("page-reset");
+    },
   },
 };
 </script>
@@ -38,11 +44,7 @@ export default {
   <div>
     <div>
       <span>Фильтр по названию: </span>
-      <input
-        type="text"
-        :value="tickersFilter"
-        @input="$emit('update:tickersFilter', $event.target.value)"
-      />
+      <input type="text" :value="tickersFilter" @input="handleInput" />
     </div>
     <div>
       <button

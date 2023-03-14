@@ -54,10 +54,6 @@ export default {
   },
 
   watch: {
-    tickersFilter() {
-      this.page = 1;
-    },
-
     urlFilterParams() {
       window.history.pushState(
         "",
@@ -128,6 +124,7 @@ export default {
     v-model:tickersFilter="tickersFilter"
     @prev-page="page -= 1"
     @next-page="page += 1"
+    @page-reset="this.page = 1"
   />
   <hr class="w-full border-t border-gray-600 my-4" />
   <ticker-block
