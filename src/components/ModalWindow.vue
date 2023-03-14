@@ -1,20 +1,55 @@
 <script>
 export default {
+  data() {
+    return {
+      popupIsOpen: false,
+    };
+  },
 
+  popupControllers: null,
+
+  methods: {
+    open() {
+      let resolve;
+      let reject;
+
+      const newProm = new Promise((success, fail) => {
+        resolve = success;
+        reject = fail;
+      });
+
+      this.$options.popupControllers = { resolve, reject };
+      this.popupIsOpen = true;
+
+      return newProm;
+    },
+
+    canceled() {
+      this.$options.popupControllers.resolve(false);
+      this.popupIsOpen = false;
+    },
+
+    submitted() {
+      this.$options.popupControllers.resolve(true);
+      this.popupIsOpen = false;
+    },
+  },
 };
 </script>
 
 <template>
-  <div class="popup-bg"></div>
-  <div class="popup">
-    <div class="popup__description">
-      <slot name="question">Are you sure?</slot>
-    </div>
-    <div class="popup__btns">
-      <slot name="submitBtns">
-        <input type="button" value="Yes!" />
-        <input type="button" value="No, wait!" />
-      </slot>
+  <div v-if="popupIsOpen">
+    <div class="popup-bg" @click="canceled"></div>
+    <div class="popup">
+      <div class="popup__description">
+        <slot name="question">Are you sure?</slot>
+      </div>
+      <div class="popup__btns">
+        <slot name="submitBtns" :canceled="canceled" :submitted="submitted">
+          <input type="button" value="Yes!" />
+          <input type="button" value="No, wait!" />
+        </slot>
+      </div>
     </div>
   </div>
 </template>

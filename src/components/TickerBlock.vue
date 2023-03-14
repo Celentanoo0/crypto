@@ -30,7 +30,6 @@ export default {
 
   data() {
     return {
-      popupIsOpen: false,
       tickerToDelete: null,
     };
   },
@@ -52,15 +51,15 @@ export default {
         : price.toPrecision(2);
     },
 
-    openPopup(ticker) {
+    async openPopup(ticker) {
       this.tickerToDelete = ticker;
-      this.popupIsOpen = true;
-    },
 
-    handleDelete() {
-      this.$emit("delete-ticker", this.tickerToDelete);
-      this.tickerToDelete = null;
-      this.popupIsOpen = false;
+      const popupResult = await this.$refs.popup.open();
+
+      if (popupResult) {
+        this.$emit("delete-ticker", this.tickerToDelete);
+        this.tickerToDelete = null;
+      }
     },
   },
 };
@@ -104,23 +103,26 @@ export default {
       </button>
     </div>
   </dl>
-  <div v-if="popupIsOpen">
-    <modal-window>
-      <template #question>
-        <div class="popup-warn">
-          <img src="/src/assets/popup-warning.svg" />
-        </div>
-        <div class="popup-msg">
-          <p>Are you sure?</p>
-          <p>Ticker: "{{ tickerToDelete.name }} - USD" will be deleted!</p>
-        </div>
-      </template>
-      <template #submitBtns>
-        <input type="button" value="Yes!" class="submitBtn"/>
-        <input type="button" value="No, wait!" class="declineBtn"/>
-      </template>
-    </modal-window>
-  </div>
+  <modal-window ref="popup">
+    <template #question>
+      <div class="popup-warn">
+        <img src="/src/assets/popup-warning.svg" />
+      </div>
+      <div class="popup-msg">
+        <p>Are you sure?</p>
+        <p>Ticker: "{{ tickerToDelete.name }} - USD" will be deleted!</p>
+      </div>
+    </template>
+    <template #submitBtns="{ canceled, submitted }">
+      <input type="button" value="Yes!" class="submitBtn" @click="submitted" />
+      <input
+        type="button"
+        value="No, wait!"
+        class="declineBtn"
+        @click="canceled"
+      />
+    </template>
+  </modal-window>
 </template>
 
 <style scoped>
