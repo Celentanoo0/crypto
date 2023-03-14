@@ -38,7 +38,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="popupIsOpen">
+  <div v-if="popupIsOpen" class="wrapper">
     <div class="popup-bg" @click="canceled"></div>
     <div class="popup">
       <div class="popup__description">
@@ -98,5 +98,12 @@ export default {
   justify-content: space-around;
   background: whitesmoke;
   width: 100%;
+}
+
+@media (max-width: 600px) {
+  .popup {
+    width: 350px;
+    height: 350px;
+  }
 }
 </style>

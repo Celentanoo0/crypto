@@ -137,7 +137,7 @@ export default {
     @delete-ticker="handleDelete"
   />
   <hr class="w-full border-t border-gray-600 my-4" />
-  <template v-if="selectedTicker">
+  <template v-if="selectedTicker && !selectedTicker.tokenIsNotExist">
     <crypto-graph
       :selectedTicker="selectedTicker.name"
       :price="currentPriceOfSelectedTicker"

@@ -71,7 +71,10 @@ export default {
 </script>
 
 <template>
-  <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+  <dl
+    class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3"
+    :aria-hidden="tickerToDelete !== null"
+  >
     <div
       class="overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer"
       v-for="ticker in paginatedPage"
@@ -108,7 +111,7 @@ export default {
       </button>
     </div>
   </dl>
-  <modal-window ref="popup">
+  <modal-window ref="popup" @wheel.prevent @touchmove.prevent @scroll.prevent>
     <template #question>
       <div class="popup-warn">
         <img src="/src/assets/popup-warning.svg" />
