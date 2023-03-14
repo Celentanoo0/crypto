@@ -56,7 +56,6 @@ export default {
 
 <style scoped>
 .popup {
-  font-family: Arial;
   position: absolute;
   top: 50%;
   left: 50%;
