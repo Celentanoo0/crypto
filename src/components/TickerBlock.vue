@@ -1,4 +1,5 @@
 <script>
+import ModalWindow from "@/components/ModalWindow.vue";
 export default {
   props: {
     selectedTicker: {
@@ -19,8 +20,19 @@ export default {
   },
 
   emits: {
-    "delete-ticker": (ticker) => typeof ticker === 'object',
-    'select-ticker': (ticker) => typeof ticker === 'object',
+    "delete-ticker": (ticker) => typeof ticker === "object",
+    "select-ticker": (ticker) => typeof ticker === "object",
+  },
+
+  components: {
+    ModalWindow,
+  },
+
+  data() {
+    return {
+      popupIsOpen: false,
+      tickerToDelete: null,
+    };
   },
 
   methods: {
@@ -38,6 +50,17 @@ export default {
         : price > 1
         ? price.toFixed(2)
         : price.toPrecision(2);
+    },
+
+    openPopup(ticker) {
+      this.tickerToDelete = ticker;
+      this.popupIsOpen = true;
+    },
+
+    handleDelete() {
+      this.$emit("delete-ticker", this.tickerToDelete);
+      this.tickerToDelete = null;
+      this.popupIsOpen = false;
     },
   },
 };
@@ -62,7 +85,7 @@ export default {
       </div>
       <div class="w-full border-t border-gray-200"></div>
       <button
-        @click.stop="$emit('delete-ticker', ticker)"
+        @click.stop="openPopup(ticker)"
         class="flex items-center justify-center font-medium w-full bg-gray-100 px-4 py-4 sm:px-6 text-md text-gray-500 hover:text-gray-600 hover:bg-gray-200 hover:opacity-20 transition-all focus:outline-none"
       >
         <svg
@@ -81,6 +104,74 @@ export default {
       </button>
     </div>
   </dl>
+  <div v-if="popupIsOpen">
+    <modal-window>
+      <template #question>
+        <div class="popup-warn">
+          <img src="/src/assets/popup-warning.svg" />
+        </div>
+        <div class="popup-msg">
+          <p>Are you sure?</p>
+          <p>Ticker: "{{ tickerToDelete.name }} - USD" will be deleted!</p>
+        </div>
+      </template>
+      <template #submitBtns>
+        <input type="button" value="Yes!" class="submitBtn"/>
+        <input type="button" value="No, wait!" class="declineBtn"/>
+      </template>
+    </modal-window>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.popup-warn {
+  width: 100px;
+  height: 100px;
+}
+.popup-msg {
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.popup-msg p:first-child {
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -1px;
+  opacity: 0.8;
+}
+
+.popup-msg p:last-child {
+  font-size: 18px;
+  opacity: 0.6;
+  margin: 10px 0 0 0;
+}
+
+input[type="button"] {
+  padding: 5px 20px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitBtn {
+  background: #3185d6;
+}
+.submitBtn:hover {
+  background: #2666a4;
+}
+.submitBtn:active {
+  background: #1f5386;
+}
+
+.declineBtn {
+  background: #dd3333;
+}
+.declineBtn:hover {
+  background: #9a2525;
+}
+.declineBtn:active {
+  background: #771d1d;
+}
+</style>
