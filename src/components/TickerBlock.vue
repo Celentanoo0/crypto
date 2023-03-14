@@ -52,12 +52,17 @@ export default {
     },
 
     async openPopup(ticker) {
+      if (ticker.tokenIsNotExist) {
+        this.$emit("delete-ticker", ticker);
+        return;
+      }
+
       this.tickerToDelete = ticker;
 
       const popupResult = await this.$refs.popup.open();
 
       if (popupResult) {
-        this.$emit("delete-ticker", this.tickerToDelete);
+        this.$emit("delete-ticker", ticker);
         this.tickerToDelete = null;
       }
     },
