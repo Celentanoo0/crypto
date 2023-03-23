@@ -53,13 +53,13 @@ export default {
     }, 40);
   },
 
+  mounted() {
+    this.$router.push(`crypto/?filter=${this.tickersFilter}&page=${this.page}`);
+  },
+
   watch: {
     urlFilterParams() {
-      window.history.pushState(
-        "",
-        "Cryptonomicon",
-        `http://localhost:5173/?filter=${this.tickersFilter}&page=${this.page}`
-      );
+      this.$router.push(`?filter=${this.tickersFilter}&page=${this.page}`);
     },
   },
 
@@ -127,12 +127,18 @@ export default {
     @page-reset="this.page = 1"
   />
   <hr class="w-full border-t border-gray-600 my-4" />
-  <ticker-block
+  <!--  <ticker-block-->
+  <!--    :selectedTicker="selectedTicker"-->
+  <!--    :paginatedPage="paginatedPage"-->
+  <!--    @select-ticker="selectTicker"-->
+  <!--    @delete-ticker="handleDelete"-->
+  <!--  />-->
+  <router-view
     :selectedTicker="selectedTicker"
     :paginatedPage="paginatedPage"
     @select-ticker="selectTicker"
     @delete-ticker="handleDelete"
-  />
+  ></router-view>
   <hr class="w-full border-t border-gray-600 my-4" />
   <template v-if="selectedTicker && !selectedTicker.tokenIsNotExist">
     <crypto-graph
